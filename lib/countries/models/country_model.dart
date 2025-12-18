@@ -1,8 +1,11 @@
+import '../utils/capital_translations.dart';
+
 /// Модель данных страны
 class Country {
   final String officialName;
   final String commonName;
   final String? capital;
+  final String? russianCapital; // Русское название столицы
   final int population;
   final double area;
   final String region;
@@ -25,6 +28,7 @@ class Country {
     required this.officialName,
     required this.commonName,
     this.capital,
+    this.russianCapital,
     required this.population,
     required this.area,
     required this.region,
@@ -106,10 +110,17 @@ class Country {
       russianOfficialName = rusTranslation['official'] as String?;
     }
 
+    // Перевод столицы на русский
+    String? russianCapital;
+    if (capital != null && isRussianSearch) {
+      russianCapital = CapitalTranslations.translate(capital);
+    }
+
     return Country(
       officialName: officialName,
       commonName: commonName,
       capital: capital,
+      russianCapital: russianCapital,
       population: population,
       area: area,
       region: region,

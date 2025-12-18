@@ -161,7 +161,9 @@ class CountryInfoCard extends StatelessWidget {
           _buildInfoRow(
             icon: Icons.location_city,
             label: isRussian ? 'Столица' : 'Capital',
-            value: country.capital!,
+            value: isRussian && country.russianCapital != null 
+                ? country.russianCapital! 
+                : country.capital!,
             iconColor: Colors.blue,
           ),
         

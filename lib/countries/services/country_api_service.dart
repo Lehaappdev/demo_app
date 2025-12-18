@@ -27,28 +27,35 @@ class CountryApiService {
       // Определяем язык запроса (русский или нет)
       final isRussianSearch = _containsCyrillic(searchName);
       
-      // Сначала пытаемся искать с fullText=true для поддержки всех языков
-      final urlWithFullText = Uri.parse('$_baseUrl/name/$searchName?fullText=false');
+      // Формируем URL в зависимости от языка запроса
+      Uri url;
+      http.Response response;
       
-      print('Запрос к API: $urlWithFullText');
-
-      // Выполнение GET запроса
-      var response = await http.get(urlWithFullText).timeout(
-        _timeout,
-        onTimeout: () {
-          throw Exception('Превышено время ожидания ответа от сервера');
-        },
-      );
+      if (isRussianSearch) {
+        // Для русского языка сразу используем эндпоинт translation
+        url = Uri.parse('$_baseUrl/translation/$searchName');
+        print('Запрос к API (перевод): $url');
+        
+        response = await http.get(url).timeout(
+          _timeout,
+          onTimeout: () {
+            throw Exception('Превышено время ожидания ответа от сервера');
+          },
+        );
+      } else {
+        // Для английского языка используем обычный эндпоинт name
+        url = Uri.parse('$_baseUrl/name/$searchName');
+        print('Запрос к API: $url');
+        
+        response = await http.get(url).timeout(
+          _timeout,
+          onTimeout: () {
+            throw Exception('Превышено время ожидания ответа от сервера');
+          },
+        );
+      }
 
       print('Статус ответа: ${response.statusCode}');
-
-      // Если не найдено, пробуем искать по переводу (translation)
-      if (response.statusCode == 404) {
-        print('Поиск по переводу: $searchName');
-        final translationUrl = Uri.parse('$_baseUrl/translation/$searchName');
-        response = await http.get(translationUrl).timeout(_timeout);
-        print('Статус ответа (перевод): ${response.statusCode}');
-      }
 
       // Обработка ответа
       switch (response.statusCode) {
